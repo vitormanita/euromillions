@@ -20,6 +20,7 @@ export const STARS_TO_SELECT = 2;
 export const GAMES_COUNT = 5;
 
 export const PRIZE_AMOUNT = 40_000_000;
+export const MAX_JACKPOT = 250_000_000;
 
 export const STATUS_THRESHOLDS = {
   hot: 1.05,      // 5% above average

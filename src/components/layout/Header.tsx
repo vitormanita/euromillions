@@ -1,4 +1,4 @@
-import { PRIZE_AMOUNT } from '../../utils/constants';
+import { PRIZE_AMOUNT, MAX_JACKPOT } from '../../utils/constants';
 
 interface HeaderProps {
   lastUpdated?: string;
@@ -11,6 +11,27 @@ function formatPrize(amount: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+const SEGMENT_COUNT = 5;
+
+function JackpotMeter({ current, max }: { current: number; max: number }) {
+  const filledSegments = Math.min(Math.ceil((current / max) * SEGMENT_COUNT), SEGMENT_COUNT);
+
+  return (
+    <div className="flex gap-1 mt-1">
+      {Array.from({ length: SEGMENT_COUNT }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-1.5 w-4 rounded-sm transition-all duration-300 ${
+            i < filledSegments
+              ? 'bg-lottery-gold'
+              : 'bg-lottery-gold/20'
+          }`}
+        />
+      ))}
+    </div>
+  );
 }
 
 export function Header({ lastUpdated }: HeaderProps) {
@@ -27,17 +48,33 @@ export function Header({ lastUpdated }: HeaderProps) {
       </div>
 
       {/* Prize display */}
-      <div className="inline-flex items-center gap-3 bg-gradient-to-r from-lottery-gold/20 to-lottery-gold/10 px-6 py-3 rounded-full border-2 border-lottery-gold/30">
-        <span className="text-3xl animate-pulse-slow">💰</span>
-        <div className="text-left">
-          <p className="text-xs text-lottery-gold/70 uppercase tracking-wider font-semibold">
-            Current Jackpot
-          </p>
-          <p className="text-2xl font-bold text-lottery-gold">
-            {formatPrize(PRIZE_AMOUNT)}
-          </p>
+      {PRIZE_AMOUNT >= MAX_JACKPOT ? (
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-lottery-gold via-yellow-400 to-lottery-gold px-6 py-3 rounded-full border-2 border-yellow-300 shadow-lg shadow-lottery-gold/30">
+          <span className="text-3xl animate-pulse-slow">🏆</span>
+          <div className="text-left">
+            <p className="text-xs text-yellow-900 uppercase tracking-wider font-bold">
+              Jackpot Max!
+            </p>
+            <p className="text-2xl font-bold text-yellow-900">
+              {formatPrize(PRIZE_AMOUNT)}
+            </p>
+            <JackpotMeter current={PRIZE_AMOUNT} max={MAX_JACKPOT} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-lottery-gold/20 to-lottery-gold/10 px-6 py-3 rounded-full border-2 border-lottery-gold/30">
+          <span className="text-3xl animate-pulse-slow">💰</span>
+          <div className="text-left">
+            <p className="text-xs text-lottery-gold/70 uppercase tracking-wider font-semibold">
+              Current Jackpot
+            </p>
+            <p className="text-2xl font-bold text-lottery-gold">
+              {formatPrize(PRIZE_AMOUNT)}
+            </p>
+            <JackpotMeter current={PRIZE_AMOUNT} max={MAX_JACKPOT} />
+          </div>
+        </div>
+      )}
 
       {/* Data freshness indicator */}
       {lastUpdated && (
