@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { WeightSliders } from './components/controls/WeightSliders';
+import { GameCountSelector } from './components/controls/GameCountSelector';
 import { GenerateButton } from './components/controls/GenerateButton';
 import { Bulletin } from './components/bulletin/Bulletin';
 import { StatsPanel } from './components/stats/StatsPanel';
@@ -13,13 +14,14 @@ import { Confetti } from './components/effects/Confetti';
 function App() {
   const { weights, updateWeight, applyPreset } = useWeights();
   const { statistics, loading, error } = useStatistics();
-  const { games, isGenerating, hasGenerated, generate } = useGenerator(statistics);
+  const { games, isGenerating, generate } = useGenerator(statistics);
+  const [gameCount, setGameCount] = useState(2);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handleGenerate = async () => {
     setIsAnimating(false);
-    await generate(weights);
+    await generate(weights, gameCount);
     setIsAnimating(true);
     setShowConfetti(true);
 
@@ -65,27 +67,18 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <Header lastUpdated={statistics?.lastUpdated} />
 
-        <main className="space-y-6">
-          {/* Controls section */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <WeightSliders
-                weights={weights}
-                onWeightChange={updateWeight}
-                onPresetApply={applyPreset}
-              />
-            </div>
-            <div className="flex items-end">
-              <GenerateButton
-                onClick={handleGenerate}
-                isGenerating={isGenerating}
-                hasGenerated={hasGenerated}
-              />
-            </div>
-          </div>
+        <main className="space-y-4">
+          {/* Unified Controls */}
+          <WeightSliders
+            weights={weights}
+            onWeightChange={updateWeight}
+            onPresetApply={applyPreset}
+            headerRight={<GameCountSelector count={gameCount} onChange={setGameCount} />}
+            footer={<GenerateButton onClick={handleGenerate} isGenerating={isGenerating} />}
+          />
 
           {/* Bulletin */}
-          <Bulletin games={games} isAnimating={isAnimating} />
+          <Bulletin games={games} gameCount={gameCount} isAnimating={isAnimating} />
 
           {/* Stats panel */}
           <StatsPanel games={games} statistics={statistics} />

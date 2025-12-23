@@ -1,16 +1,15 @@
 interface GenerateButtonProps {
   onClick: () => void;
   isGenerating: boolean;
-  hasGenerated: boolean;
 }
 
-export function GenerateButton({ onClick, isGenerating, hasGenerated }: GenerateButtonProps) {
+export function GenerateButton({ onClick, isGenerating }: GenerateButtonProps) {
   return (
     <button
       onClick={onClick}
       disabled={isGenerating}
       className={`
-        generate-btn w-full py-4 px-8 rounded-2xl font-bold text-lg
+        generate-btn w-full py-3 px-6 rounded-xl font-bold text-base
         transition-all duration-300 transform
         ${isGenerating
           ? 'bg-gray-300 text-gray-500 cursor-not-allowed scale-95'
@@ -18,10 +17,10 @@ export function GenerateButton({ onClick, isGenerating, hasGenerated }: Generate
         }
       `}
     >
-      <span className="flex items-center justify-center gap-3">
+      <span className="flex items-center justify-center gap-2">
         {isGenerating ? (
           <>
-            <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
               <circle
                 className="opacity-25"
                 cx="12"
@@ -41,8 +40,8 @@ export function GenerateButton({ onClick, isGenerating, hasGenerated }: Generate
           </>
         ) : (
           <>
-            <span className="text-2xl">{hasGenerated ? '🔄' : '🎰'}</span>
-            {hasGenerated ? 'Generate Again' : 'Generate Numbers'}
+            <span className="text-xl">🎰</span>
+            Generate Numbers
           </>
         )}
       </span>

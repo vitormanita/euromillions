@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import type { ReactNode } from 'react';
 import type { Weights } from '../../types';
 import { WEIGHT_PRESETS } from '../../utils/constants';
 
@@ -5,90 +7,123 @@ interface WeightSlidersProps {
   weights: Weights;
   onWeightChange: (key: keyof Weights, value: number) => void;
   onPresetApply: (preset: keyof typeof WEIGHT_PRESETS) => void;
+  headerRight?: ReactNode;
+  footer?: ReactNode;
 }
 
-const SLIDER_CONFIG: { key: keyof Weights; label: string; emoji: string; color: string }[] = [
-  { key: 'overdue', label: 'Overdue', emoji: '⏰', color: 'from-orange-400 to-orange-500' },
-  { key: 'frequency', label: 'Frequency', emoji: '🔥', color: 'from-red-400 to-red-500' },
-  { key: 'randomness', label: 'Randomness', emoji: '🎲', color: 'from-purple-400 to-purple-500' },
+type PresetKey = keyof typeof WEIGHT_PRESETS | 'custom';
+
+const PRESET_CONFIG: { key: PresetKey; label: string; icon: string }[] = [
+  { key: 'balanced', label: 'Balanced', icon: '⚖️' },
+  { key: 'hotNumbers', label: 'Hot', icon: '🔥' },
+  { key: 'overdueFocus', label: 'Overdue', icon: '⏰' },
+  { key: 'pureRandom', label: 'Random', icon: '🎲' },
 ];
 
-const PRESET_BUTTONS: { key: keyof typeof WEIGHT_PRESETS; label: string; description: string }[] = [
-  { key: 'balanced', label: 'Balanced', description: 'Equal weights' },
-  { key: 'hotNumbers', label: 'Hot Numbers', description: 'Favor frequent numbers' },
-  { key: 'overdueFocus', label: 'Overdue', description: 'Favor absent numbers' },
-  { key: 'pureRandom', label: 'Random', description: 'Pure luck' },
+const SLIDER_CONFIG: { key: keyof Weights; label: string; color: string }[] = [
+  { key: 'overdue', label: 'Overdue', color: 'bg-orange-500' },
+  { key: 'frequency', label: 'Frequency', color: 'bg-red-500' },
+  { key: 'randomness', label: 'Random', color: 'bg-purple-500' },
 ];
 
-export function WeightSliders({ weights, onWeightChange, onPresetApply }: WeightSlidersProps) {
+function weightsMatch(a: Weights, b: Weights): boolean {
+  return a.overdue === b.overdue && a.frequency === b.frequency && a.randomness === b.randomness;
+}
+
+export function WeightSliders({ weights, onWeightChange, onPresetApply, headerRight, footer }: WeightSlidersProps) {
+  // Determine which preset is currently active
+  const activePreset = useMemo((): PresetKey => {
+    for (const [key, preset] of Object.entries(WEIGHT_PRESETS)) {
+      if (weightsMatch(weights, preset)) {
+        return key as keyof typeof WEIGHT_PRESETS;
+      }
+    }
+    return 'custom';
+  }, [weights]);
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-ticket">
-      <h2 className="text-lg font-semibold text-lottery-blue mb-4 flex items-center gap-2">
-        <span className="text-2xl">⚖️</span>
-        Adjust Probabilities
-      </h2>
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-ticket">
+      {/* Top row: Preset buttons + header right content */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        {/* Preset buttons */}
+        <div className="flex gap-2 flex-1 min-w-0">
+          {PRESET_CONFIG.map(({ key, label, icon }) => {
+            const isActive = activePreset === key;
+            const isCustom = key === 'custom';
 
-      {/* Presets */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {PRESET_BUTTONS.map(preset => (
-          <button
-            key={preset.key}
-            onClick={() => onPresetApply(preset.key)}
-            className="px-3 py-1.5 text-sm font-medium rounded-full border-2 border-lottery-blue/20
-                       text-lottery-blue hover:bg-lottery-blue hover:text-white transition-all duration-200
-                       hover:border-lottery-blue active:scale-95"
-            title={preset.description}
-          >
-            {preset.label}
-          </button>
-        ))}
+            if (isCustom) return null;
+
+            return (
+              <button
+                key={key}
+                onClick={() => onPresetApply(key as keyof typeof WEIGHT_PRESETS)}
+                className={`
+                  flex-1 py-2 px-2 md:px-3 rounded-lg font-medium text-sm transition-all duration-200
+                  flex items-center justify-center gap-1 md:gap-1.5
+                  ${isActive
+                    ? 'bg-lottery-blue text-white shadow-md scale-[1.02]'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }
+                `}
+              >
+                <span>{icon}</span>
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Header right slot (GameCountSelector) */}
+        {headerRight && <div className="shrink-0">{headerRight}</div>}
       </div>
 
+      {/* Custom indicator */}
+      {activePreset === 'custom' && (
+        <div className="flex items-center justify-center gap-2 mb-3 py-1.5 px-3 bg-lottery-pink/10 rounded-lg">
+          <span className="text-sm font-medium text-lottery-pink">✨ Custom weights</span>
+        </div>
+      )}
+
       {/* Sliders */}
-      <div className="space-y-5">
-        {SLIDER_CONFIG.map(({ key, label, emoji, color }) => (
-          <div key={key} className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <span>{emoji}</span>
-                {label}
-              </label>
-              <span className="text-sm font-bold text-lottery-blue bg-lottery-blue/10 px-2 py-0.5 rounded-full">
-                {weights[key]}%
-              </span>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 h-2 rounded-full bg-gray-200" />
-              <div
-                className={`absolute h-2 rounded-full bg-gradient-to-r ${color} transition-all duration-150`}
-                style={{ width: `${weights[key]}%` }}
-              />
+      <div className="space-y-3">
+        {SLIDER_CONFIG.map(({ key, label, color }) => (
+          <div key={key} className="flex items-center gap-3">
+            <span className="text-xs font-medium text-gray-500 w-20">{label}</span>
+            <div className="flex-1 relative">
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={weights[key]}
                 onChange={(e) => onWeightChange(key, parseInt(e.target.value, 10))}
-                className="relative w-full h-2 appearance-none bg-transparent cursor-pointer z-10"
+                className="w-full h-2 appearance-none bg-gray-200 rounded-full cursor-pointer
+                           [&::-webkit-slider-thumb]:appearance-none
+                           [&::-webkit-slider-thumb]:w-4
+                           [&::-webkit-slider-thumb]:h-4
+                           [&::-webkit-slider-thumb]:rounded-full
+                           [&::-webkit-slider-thumb]:bg-lottery-blue
+                           [&::-webkit-slider-thumb]:shadow-md
+                           [&::-webkit-slider-thumb]:cursor-pointer
+                           [&::-webkit-slider-thumb]:transition-transform
+                           [&::-webkit-slider-thumb]:hover:scale-110"
+                style={{
+                  background: `linear-gradient(to right, ${color === 'bg-orange-500' ? '#f97316' : color === 'bg-red-500' ? '#ef4444' : '#a855f7'} 0%, ${color === 'bg-orange-500' ? '#f97316' : color === 'bg-red-500' ? '#ef4444' : '#a855f7'} ${weights[key]}%, #e5e7eb ${weights[key]}%, #e5e7eb 100%)`
+                }}
               />
             </div>
+            <span className="text-xs font-bold text-lottery-blue w-10 text-right tabular-nums">
+              {weights[key]}%
+            </span>
           </div>
         ))}
       </div>
 
-      {/* Total indicator */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="flex justify-between items-center text-sm">
-          <span className="text-gray-500">Total</span>
-          <span className={`font-bold ${
-            weights.overdue + weights.frequency + weights.randomness === 100
-              ? 'text-green-600'
-              : 'text-red-500'
-          }`}>
-            {weights.overdue + weights.frequency + weights.randomness}%
-          </span>
+      {/* Footer slot (GenerateButton) */}
+      {footer && (
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          {footer}
         </div>
-      </div>
+      )}
     </div>
   );
 }

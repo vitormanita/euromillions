@@ -8,12 +8,9 @@ interface StatsPanelProps {
 }
 
 export function StatsPanel({ games, statistics }: StatsPanelProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedGames, setExpandedGames] = useState<Set<number>>(new Set());
 
   if (games.length === 0 || !statistics) return null;
-
-  // Use the first game for detailed stats
-  const firstGame = games[0];
 
   // Calculate average absences for context
   const avgMainAbsences =
@@ -23,84 +20,97 @@ export function StatsPanel({ games, statistics }: StatsPanelProps) {
     statistics.stars.reduce((sum, n) => sum + n.absences, 0) /
     statistics.stars.length;
 
+  const toggleGame = (index: number) => {
+    setExpandedGames(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-ticket overflow-hidden">
-      {/* Header - always visible */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/50 transition-colors"
-      >
-        <h3 className="text-lg font-semibold text-lottery-blue flex items-center gap-2">
-          <span className="text-2xl">📊</span>
+      <div className="px-4 py-3 border-b border-gray-100">
+        <h3 className="text-base font-semibold text-lottery-blue flex items-center gap-2">
+          <span>📊</span>
           Selection Analysis
         </h3>
-        <span
-          className={`
-            text-lottery-blue/60 transition-transform duration-200
-            ${isExpanded ? 'rotate-180' : ''}
-          `}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </span>
-      </button>
+      </div>
 
-      {/* Expandable content */}
-      <div
-        className={`
-          transition-all duration-300 ease-in-out overflow-hidden
-          ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}
-        `}
-      >
-        <div className="px-6 pb-6 space-y-4">
-          {/* Quick summary */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-lottery-pink/10 rounded-xl p-4 text-center">
-              <p className="text-sm text-lottery-pink/70 mb-1">Main Numbers</p>
-              <p className="text-2xl font-bold text-lottery-pink">
-                {firstGame.mainNumbers.join(' - ')}
-              </p>
+      <div className="divide-y divide-gray-100">
+        {games.map((game, index) => {
+          const isExpanded = expandedGames.has(index);
+
+          return (
+            <div key={index}>
+              {/* Game header */}
+              <button
+                onClick={() => toggleGame(index)}
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-semibold text-lottery-blue/60">
+                    Game {index + 1}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-lottery-pink">
+                      {game.mainNumbers.join(' - ')}
+                    </span>
+                    <span className="text-gray-300">|</span>
+                    <span className="text-sm font-bold text-lottery-gold">
+                      ⭐ {game.stars.join(' ')}
+                    </span>
+                  </div>
+                </div>
+                <span
+                  className={`
+                    text-lottery-blue/40 transition-transform duration-200
+                    ${isExpanded ? 'rotate-180' : ''}
+                  `}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </span>
+              </button>
+
+              {/* Expandable content */}
+              <div
+                className={`
+                  transition-all duration-300 ease-in-out overflow-hidden
+                  ${isExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
+                `}
+              >
+                <div className="px-4 pb-4 grid md:grid-cols-2 gap-3">
+                  <ReasoningCard
+                    scores={game.mainScores}
+                    type="numbers"
+                    avgAbsences={avgMainAbsences}
+                  />
+                  <ReasoningCard
+                    scores={game.starScores}
+                    type="stars"
+                    avgAbsences={avgStarAbsences}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="bg-lottery-gold/10 rounded-xl p-4 text-center">
-              <p className="text-sm text-lottery-gold/70 mb-1">Lucky Stars</p>
-              <p className="text-2xl font-bold text-lottery-gold">
-                ⭐ {firstGame.stars.join(' ⭐ ')}
-              </p>
-            </div>
-          </div>
-
-          {/* Detailed reasoning */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <ReasoningCard
-              scores={firstGame.mainScores}
-              type="numbers"
-              avgAbsences={avgMainAbsences}
-            />
-            <ReasoningCard
-              scores={firstGame.starScores}
-              type="stars"
-              avgAbsences={avgStarAbsences}
-            />
-          </div>
-
-          {/* Note about other games */}
-          {games.length > 1 && (
-            <p className="text-xs text-center text-gray-500 pt-2">
-              Note: Analysis shown is for Game 1. Each game uses independent random factors.
-            </p>
-          )}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
