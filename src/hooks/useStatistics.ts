@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Statistics } from '../types';
 
-const FALLBACK_URL = '/data/statistics.json';
+const FALLBACK_URL = `${import.meta.env.BASE_URL}data/statistics.json`;
 
 export function useStatistics() {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
