@@ -1,4 +1,5 @@
 import { GameCard } from './GameCard';
+import { useLanguage } from '../../i18n/LanguageContext';
 import type { GeneratedGame } from '../../types';
 
 interface BulletinProps {
@@ -8,9 +9,14 @@ interface BulletinProps {
 }
 
 export function Bulletin({ games, gameCount, isAnimating = false }: BulletinProps) {
+  const { t, language } = useLanguage();
   // Always show 5 slots
   const gameSlots = Array.from({ length: 5 }, (_, i) => i);
   const hasGenerated = games.length > 0;
+
+  const gamesInfoText = language === 'pt'
+    ? `${gameCount} ${gameCount === 1 ? 'jogo' : 'jogos'} • 5 números + 2 estrelas cada`
+    : `${gameCount} ${gameCount === 1 ? 'game' : 'games'} • 5 numbers + 2 stars each`;
 
   return (
     <div className="bg-gradient-to-br from-lottery-paper to-lottery-paper-dark rounded-2xl p-4 shadow-ticket border-4 border-lottery-blue paper-texture">
@@ -18,10 +24,10 @@ export function Bulletin({ games, gameCount, isAnimating = false }: BulletinProp
       <div className="text-center mb-4">
         <h2 className="text-xl font-bold text-lottery-blue flex items-center justify-center gap-2">
           <span className="text-2xl">🎫</span>
-          Your Euromillions Ticket
+          {t.bulletin.title}
         </h2>
         <p className="text-xs text-lottery-blue/60 mt-1">
-          {gameCount} {gameCount === 1 ? 'game' : 'games'} • 5 numbers + 2 stars each
+          {gamesInfoText}
         </p>
       </div>
 
@@ -46,7 +52,7 @@ export function Bulletin({ games, gameCount, isAnimating = false }: BulletinProp
       {/* Empty state */}
       {!hasGenerated && (
         <div className="text-center py-6 text-lottery-blue/40">
-          <p className="text-base">Press the button to generate your lucky numbers!</p>
+          <p className="text-base">{t.bulletin.emptyState}</p>
         </div>
       )}
     </div>

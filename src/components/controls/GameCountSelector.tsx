@@ -1,14 +1,18 @@
+import { useLanguage } from '../../i18n/LanguageContext';
+
 interface GameCountSelectorProps {
   count: number;
   onChange: (count: number) => void;
 }
 
 export function GameCountSelector({ count, onChange }: GameCountSelectorProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-semibold text-lottery-blue flex items-center gap-1.5 whitespace-nowrap">
         <span>🎮</span>
-        Games
+        {t.controls.games}
       </span>
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((num) => (

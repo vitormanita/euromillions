@@ -1,4 +1,5 @@
 import { MAX_JACKPOT } from '../../utils/constants';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface HeaderProps {
   lastUpdated?: string;
@@ -36,15 +37,17 @@ function JackpotMeter({ current, max }: { current: number; max: number }) {
 }
 
 export function Header({ lastUpdated, jackpot }: HeaderProps) {
+  const { t } = useLanguage();
+
   return (
     <header className="text-center py-8">
       {/* Logo / Title */}
       <div className="mb-4">
         <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-lottery-blue via-lottery-pink to-lottery-gold bg-clip-text text-transparent animate-float">
-          Euromillions Generator
+          {t.header.title}
         </h1>
         <p className="text-lottery-blue/60 mt-2 text-lg">
-          Smart number generation with weighted probabilities
+          {t.header.subtitle}
         </p>
       </div>
 
@@ -54,7 +57,7 @@ export function Header({ lastUpdated, jackpot }: HeaderProps) {
           <span className="text-3xl animate-pulse-slow">🏆</span>
           <div className="text-left">
             <p className="text-xs text-yellow-900 uppercase tracking-wider font-bold">
-              Jackpot Max!
+              {t.header.jackpotMax}
             </p>
             <p className="text-2xl font-bold text-yellow-900">
               {formatPrize(jackpot)}
@@ -67,7 +70,7 @@ export function Header({ lastUpdated, jackpot }: HeaderProps) {
           <span className="text-3xl animate-pulse-slow">💰</span>
           <div className="text-left">
             <p className="text-xs text-lottery-gold/70 uppercase tracking-wider font-semibold">
-              Current Jackpot
+              {t.header.currentJackpot}
             </p>
             <p className="text-2xl font-bold text-lottery-gold">
               {formatPrize(jackpot)}
@@ -80,7 +83,7 @@ export function Header({ lastUpdated, jackpot }: HeaderProps) {
       {/* Data freshness indicator */}
       {lastUpdated && (
         <p className="text-xs text-gray-400 mt-4">
-          Statistics updated: {lastUpdated}
+          {t.header.statisticsUpdated} {lastUpdated}
         </p>
       )}
     </header>

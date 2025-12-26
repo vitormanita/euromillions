@@ -1,8 +1,12 @@
+import { useLanguage } from '../../i18n/LanguageContext';
+
 export function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="text-center py-8 text-sm text-gray-500">
       <p className="mb-2">
-        Data source:{' '}
+        {t.footer.dataSource}{' '}
         <a
           href="https://www.jogossantacasa.pt/web/SCEstatisticas/"
           target="_blank"
@@ -13,12 +17,12 @@ export function Footer() {
         </a>
       </p>
       <p className="text-xs text-gray-400">
-        This generator uses historical statistics to weight number selection.
+        {t.footer.disclaimer}
         <br />
-        Remember: lottery results are random. Play responsibly.
+        {t.footer.reminder}
       </p>
       <p className="mt-4 text-gray-400">
-        Boa sorte! 🍀🇵🇹
+        {t.footer.goodLuck} 🍀🇵🇹
       </p>
     </footer>
   );

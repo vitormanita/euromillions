@@ -1,7 +1,11 @@
 import { STARS_COUNT } from '../../utils/constants';
+import { Tooltip } from '../ui/Tooltip';
+import { NumberTooltipContent } from './NumberTooltipContent';
+import type { ScoreResult } from '../../types';
 
 interface StarGridProps {
   selectedStars: number[];
+  scores?: ScoreResult[];
   isAnimating?: boolean;
   isDisabled?: boolean;
 }
@@ -35,8 +39,12 @@ function StarIcon({ filled, number, isDisabled }: { filled: boolean; number: num
   );
 }
 
-export function StarGrid({ selectedStars, isAnimating = false, isDisabled = false }: StarGridProps) {
+export function StarGrid({ selectedStars, scores, isAnimating = false, isDisabled = false }: StarGridProps) {
   const stars = Array.from({ length: STARS_COUNT }, (_, i) => i + 1);
+
+  const getScoreForStar = (num: number): ScoreResult | undefined => {
+    return scores?.find((s) => s.number === num);
+  };
 
   return (
     <div className="grid grid-cols-6 gap-0.5 justify-items-center">
@@ -45,20 +53,30 @@ export function StarGrid({ selectedStars, isAnimating = false, isDisabled = fals
         const animationDelay = isSelected
           ? `${(selectedStars.indexOf(num) + 5) * 100}ms`
           : '0ms';
+        const score = isSelected ? getScoreForStar(num) : undefined;
 
-        return (
+        const starElement = (
           <div
-            key={num}
             className={`
               transition-all duration-200
               ${isSelected && isAnimating && !isDisabled ? 'animate-bounce-in' : ''}
-              ${isSelected && !isDisabled ? 'transform scale-110' : ''}
+              ${isSelected && !isDisabled ? 'transform scale-110 cursor-pointer' : ''}
             `}
             style={isAnimating && isSelected ? { animationDelay } : undefined}
           >
             <StarIcon filled={isSelected && !isDisabled} number={num} isDisabled={isDisabled} />
           </div>
         );
+
+        if (isSelected && score && !isDisabled) {
+          return (
+            <Tooltip key={num} content={<NumberTooltipContent score={score} />}>
+              {starElement}
+            </Tooltip>
+          );
+        }
+
+        return <div key={num}>{starElement}</div>;
       })}
     </div>
   );

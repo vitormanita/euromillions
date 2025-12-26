@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { Weights } from '../../types';
 import { WEIGHT_PRESETS } from '../../utils/constants';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface WeightSlidersProps {
   weights: Weights;
@@ -13,17 +14,17 @@ interface WeightSlidersProps {
 
 type PresetKey = keyof typeof WEIGHT_PRESETS | 'custom';
 
-const PRESET_CONFIG: { key: PresetKey; label: string; icon: string }[] = [
-  { key: 'balanced', label: 'Balanced', icon: '⚖️' },
-  { key: 'hotNumbers', label: 'Hot', icon: '🔥' },
-  { key: 'overdueFocus', label: 'Overdue', icon: '⏰' },
-  { key: 'pureRandom', label: 'Random', icon: '🎲' },
+const PRESET_CONFIG: { key: PresetKey; labelKey: 'balanced' | 'hot' | 'overdue' | 'random'; icon: string }[] = [
+  { key: 'balanced', labelKey: 'balanced', icon: '⚖️' },
+  { key: 'hotNumbers', labelKey: 'hot', icon: '🔥' },
+  { key: 'overdueFocus', labelKey: 'overdue', icon: '⏰' },
+  { key: 'pureRandom', labelKey: 'random', icon: '🎲' },
 ];
 
-const SLIDER_CONFIG: { key: keyof Weights; label: string; color: string }[] = [
-  { key: 'overdue', label: 'Overdue', color: 'bg-orange-500' },
-  { key: 'frequency', label: 'Frequency', color: 'bg-red-500' },
-  { key: 'randomness', label: 'Random', color: 'bg-purple-500' },
+const SLIDER_CONFIG: { key: keyof Weights; labelKey: 'overdue' | 'frequency' | 'random'; color: string }[] = [
+  { key: 'overdue', labelKey: 'overdue', color: 'bg-orange-500' },
+  { key: 'frequency', labelKey: 'frequency', color: 'bg-red-500' },
+  { key: 'randomness', labelKey: 'random', color: 'bg-purple-500' },
 ];
 
 function weightsMatch(a: Weights, b: Weights): boolean {
@@ -31,6 +32,8 @@ function weightsMatch(a: Weights, b: Weights): boolean {
 }
 
 export function WeightSliders({ weights, onWeightChange, onPresetApply, headerRight, footer }: WeightSlidersProps) {
+  const { t } = useLanguage();
+
   // Determine which preset is currently active
   const activePreset = useMemo((): PresetKey => {
     for (const [key, preset] of Object.entries(WEIGHT_PRESETS)) {
@@ -47,7 +50,7 @@ export function WeightSliders({ weights, onWeightChange, onPresetApply, headerRi
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         {/* Preset buttons */}
         <div className="flex gap-2 flex-1 min-w-0">
-          {PRESET_CONFIG.map(({ key, label, icon }) => {
+          {PRESET_CONFIG.map(({ key, labelKey, icon }) => {
             const isActive = activePreset === key;
             const isCustom = key === 'custom';
 
@@ -67,7 +70,7 @@ export function WeightSliders({ weights, onWeightChange, onPresetApply, headerRi
                 `}
               >
                 <span>{icon}</span>
-                <span>{label}</span>
+                <span>{t.controls.presets[labelKey]}</span>
               </button>
             );
           })}
@@ -80,15 +83,15 @@ export function WeightSliders({ weights, onWeightChange, onPresetApply, headerRi
       {/* Custom indicator */}
       {activePreset === 'custom' && (
         <div className="flex items-center justify-center gap-2 mb-3 py-1.5 px-3 bg-lottery-pink/10 rounded-lg">
-          <span className="text-sm font-medium text-lottery-pink">✨ Custom weights</span>
+          <span className="text-sm font-medium text-lottery-pink">✨ {t.controls.customWeights}</span>
         </div>
       )}
 
       {/* Sliders */}
       <div className="space-y-3">
-        {SLIDER_CONFIG.map(({ key, label, color }) => (
+        {SLIDER_CONFIG.map(({ key, labelKey, color }) => (
           <div key={key} className="flex items-center gap-3">
-            <span className="text-xs font-medium text-gray-500 w-20">{label}</span>
+            <span className="text-xs font-medium text-gray-500 w-20">{t.controls.sliders[labelKey]}</span>
             <div className="flex-1 relative">
               <input
                 type="range"

@@ -1,5 +1,6 @@
 import { NumberGrid } from './NumberGrid';
 import { StarGrid } from './StarGrid';
+import { useLanguage } from '../../i18n/LanguageContext';
 import type { GeneratedGame } from '../../types';
 
 interface GameCardProps {
@@ -10,6 +11,8 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, gameNumber, isAnimating = false, isDisabled = false }: GameCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div className={`flex flex-col ${isDisabled ? 'opacity-40' : ''}`}>
       {/* Game header */}
@@ -17,7 +20,7 @@ export function GameCard({ game, gameNumber, isAnimating = false, isDisabled = f
         <span className={`text-xs font-bold uppercase tracking-wider ${
           isDisabled ? 'text-gray-400' : 'text-lottery-blue/60'
         }`}>
-          Game {gameNumber}
+          {t.bulletin.gameLabel} {gameNumber}
         </span>
       </div>
 
@@ -31,12 +34,13 @@ export function GameCard({ game, gameNumber, isAnimating = false, isDisabled = f
         <div className={`flex items-center gap-1 text-[10px] font-semibold uppercase ${
           isDisabled ? 'text-gray-400' : 'text-lottery-blue/50'
         }`}>
-          <span>5 Numbers</span>
+          <span>{t.bulletin.numbers}</span>
         </div>
 
         {/* Main numbers grid */}
         <NumberGrid
           selectedNumbers={game?.mainNumbers ?? []}
+          scores={game?.mainScores}
           isAnimating={isAnimating}
           isDisabled={isDisabled}
         />
@@ -48,12 +52,13 @@ export function GameCard({ game, gameNumber, isAnimating = false, isDisabled = f
         <div className={`flex items-center gap-1 text-[10px] font-semibold uppercase ${
           isDisabled ? 'text-gray-400' : 'text-lottery-gold/70'
         }`}>
-          <span>2 Stars</span>
+          <span>{t.bulletin.stars}</span>
         </div>
 
         {/* Stars grid */}
         <StarGrid
           selectedStars={game?.stars ?? []}
+          scores={game?.starScores}
           isAnimating={isAnimating}
           isDisabled={isDisabled}
         />

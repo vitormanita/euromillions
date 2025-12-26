@@ -11,12 +11,15 @@ import { useStatistics } from './hooks/useStatistics';
 import { useGenerator } from './hooks/useGenerator';
 import { useJackpot } from './hooks/useJackpot';
 import { Confetti } from './components/effects/Confetti';
+import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
+import { LanguageToggle } from './components/ui/LanguageToggle';
 
-function App() {
+function AppContent() {
   const { weights, updateWeight, applyPreset } = useWeights();
   const { statistics, loading, error } = useStatistics();
   const { games, isGenerating, generate } = useGenerator(statistics);
   const { jackpot } = useJackpot();
+  const { t } = useLanguage();
   const [gameCount, setGameCount] = useState(2);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -45,7 +48,7 @@ function App() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin text-6xl mb-4">🎰</div>
-          <p className="text-lottery-blue">Loading statistics...</p>
+          <p className="text-lottery-blue">{t.loading.text}</p>
         </div>
       </div>
     );
@@ -55,7 +58,7 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center text-red-500">
-          <p className="text-xl mb-2">Oops! Something went wrong.</p>
+          <p className="text-xl mb-2">{t.error.title}</p>
           <p className="text-sm">{error}</p>
         </div>
       </div>
@@ -65,6 +68,11 @@ function App() {
   return (
     <div className="min-h-screen">
       {showConfetti && <Confetti />}
+
+      {/* Language toggle - fixed position */}
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageToggle />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4">
         <Header lastUpdated={statistics?.lastUpdated} jackpot={jackpot} />
@@ -89,6 +97,14 @@ function App() {
         <Footer />
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

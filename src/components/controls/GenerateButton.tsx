@@ -1,9 +1,13 @@
+import { useLanguage } from '../../i18n/LanguageContext';
+
 interface GenerateButtonProps {
   onClick: () => void;
   isGenerating: boolean;
 }
 
 export function GenerateButton({ onClick, isGenerating }: GenerateButtonProps) {
+  const { t } = useLanguage();
+
   return (
     <button
       onClick={onClick}
@@ -36,12 +40,12 @@ export function GenerateButton({ onClick, isGenerating }: GenerateButtonProps) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            Generating...
+            {t.controls.generating}
           </>
         ) : (
           <>
             <span className="text-xl">🎰</span>
-            Generate Numbers
+            {t.controls.generateButton}
           </>
         )}
       </span>
