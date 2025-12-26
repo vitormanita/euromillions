@@ -9,12 +9,14 @@ import { StatsPanel } from './components/stats/StatsPanel';
 import { useWeights } from './hooks/useWeights';
 import { useStatistics } from './hooks/useStatistics';
 import { useGenerator } from './hooks/useGenerator';
+import { useJackpot } from './hooks/useJackpot';
 import { Confetti } from './components/effects/Confetti';
 
 function App() {
   const { weights, updateWeight, applyPreset } = useWeights();
   const { statistics, loading, error } = useStatistics();
   const { games, isGenerating, generate } = useGenerator(statistics);
+  const { jackpot } = useJackpot();
   const [gameCount, setGameCount] = useState(2);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -65,7 +67,7 @@ function App() {
       {showConfetti && <Confetti />}
 
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <Header lastUpdated={statistics?.lastUpdated} />
+        <Header lastUpdated={statistics?.lastUpdated} jackpot={jackpot} />
 
         <main className="space-y-4">
           {/* Unified Controls */}

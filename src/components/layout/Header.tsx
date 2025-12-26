@@ -1,7 +1,8 @@
-import { PRIZE_AMOUNT, MAX_JACKPOT } from '../../utils/constants';
+import { MAX_JACKPOT } from '../../utils/constants';
 
 interface HeaderProps {
   lastUpdated?: string;
+  jackpot: number;
 }
 
 function formatPrize(amount: number): string {
@@ -34,7 +35,7 @@ function JackpotMeter({ current, max }: { current: number; max: number }) {
   );
 }
 
-export function Header({ lastUpdated }: HeaderProps) {
+export function Header({ lastUpdated, jackpot }: HeaderProps) {
   return (
     <header className="text-center py-8">
       {/* Logo / Title */}
@@ -48,7 +49,7 @@ export function Header({ lastUpdated }: HeaderProps) {
       </div>
 
       {/* Prize display */}
-      {PRIZE_AMOUNT >= MAX_JACKPOT ? (
+      {jackpot >= MAX_JACKPOT ? (
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-lottery-gold via-yellow-400 to-lottery-gold px-6 py-3 rounded-full border-2 border-yellow-300 shadow-lg shadow-lottery-gold/30">
           <span className="text-3xl animate-pulse-slow">🏆</span>
           <div className="text-left">
@@ -56,9 +57,9 @@ export function Header({ lastUpdated }: HeaderProps) {
               Jackpot Max!
             </p>
             <p className="text-2xl font-bold text-yellow-900">
-              {formatPrize(PRIZE_AMOUNT)}
+              {formatPrize(jackpot)}
             </p>
-            <JackpotMeter current={PRIZE_AMOUNT} max={MAX_JACKPOT} />
+            <JackpotMeter current={jackpot} max={MAX_JACKPOT} />
           </div>
         </div>
       ) : (
@@ -69,9 +70,9 @@ export function Header({ lastUpdated }: HeaderProps) {
               Current Jackpot
             </p>
             <p className="text-2xl font-bold text-lottery-gold">
-              {formatPrize(PRIZE_AMOUNT)}
+              {formatPrize(jackpot)}
             </p>
-            <JackpotMeter current={PRIZE_AMOUNT} max={MAX_JACKPOT} />
+            <JackpotMeter current={jackpot} max={MAX_JACKPOT} />
           </div>
         </div>
       )}
